@@ -31,6 +31,10 @@ from rasterio import warp
 import shutil
 from shapely.geometry import Point, LinearRing
 from shapely.ops import nearest_points
+from matplotlib.legend_handler import HandlerTuple
+import matplotlib.patheffects as path_effects
+from collections import defaultdict
+from matplotlib.lines import Line2D
 
 import sys
 # sys.path.append('../utils/')
@@ -651,3 +655,85 @@ def sort_points_clockwise(points, labs_locs, start_labsort):
     # Sort the distances and return the sorted indices
     sorted_indices = [i for i, dist in sorted(distances, key=lambda x: x[1])]
     return sorted_indices
+
+#####################################################################
+class HandlerLinesVertical(HandlerTuple):
+    def create_artists(self, legend, orig_handle,
+                   xdescent, ydescent, width, height, fontsize,
+                   trans):
+        ndivide = len(orig_handle)
+        ydescent = height/float(ndivide+1)
+        a_list = []
+        for i, handle in enumerate(orig_handle):
+            # y = -height/2 + (height / float(ndivide)) * i -ydescent
+            y = -(height/2+ydescent/2) + 2*i*ydescent
+            line = plt.Line2D(np.array([0,1])*width, [-y,-y])
+            line.update_from(handle)
+            # line.set_marker(None)
+            point = plt.Line2D(np.array([.5])*width, [-y])
+            point.update_from(handle)
+            for artist in [line, point]:
+                artist.set_transform(trans)
+            a_list.extend([line,point])
+        return a_list
+                       
+#####################################################################
+def getstats_comparison(dfsel, stat, verb=False):
+    dfsel = dfsel.reset_index(drop=True)
+    diffs = (dfsel.manual - dfsel[stat])
+    diffs = diffs[~np.isnan(diffs)]
+    bias = np.mean(diffs)
+    std = np.std(diffs)
+    mae = np.mean(np.abs(diffs))
+    rmse = np.sqrt(np.mean(diffs**2))
+    sel = (~np.isnan(dfsel[stat])) & (~np.isnan(dfsel.manual))
+    correl = pearsonr(dfsel.manual[sel], dfsel.loc[sel, stat]).statistic
+    percent = int(np.round((dfsel.loc[sel, stat].sum() / dfsel.manual[sel].sum() - 1) * 100))
+    if verb:
+        print('- mean diff:', bias)
+        print('- std diff:', std)
+        print('- MAE:', mae)
+        print('- RMSE:', rmse)
+        print('- correl:', correl)
+        
+    return pd.DataFrame({'bias': bias, 'std': std, 'mae': mae, 'rmse': rmse, 'R': correl, 'percent': percent}, index=[stat])
+
+
+#####################################################################
+def compile_IS2_comparison_data():
+    fn_fricker = 'data/is2comp/raw/data_fricker_2021_surrfcorrected.csv'
+    fn_melling = 'data/is2comp/raw/data_melling_2024_surrfcorrected.csv'
+    fn_predict = 'data/is2comp/raw/predicted_depths_7d_ensemble_estimates.csv'
+    df_f = pd.read_csv(fn_fricker)
+    df_m = pd.read_csv(fn_melling)
+    df_p = pd.read_csv(fn_predict)
+    
+    df_f['id_lake'] = df_f.lake_id.apply(lambda x: 'lake_amery_fricker_%i' % x)
+    df_m['id_lake'] = df_m.lake_id.apply(lambda x: 'lake_greenland_melling_%i' % x)
+    
+    def interp_preds(thisid, df_):
+        dfp_ = df_p[df_p.id_lake == thisid].copy().sort_values(by='lat')
+        dfl_ = df_[df_.id_lake == thisid].copy()
+        return np.interp(dfl_.lat, dfp_.lat, dfp_.predicted_depth)
+    
+    for thisid in df_f.id_lake.unique():
+        df_f.loc[df_f.id_lake == thisid, 'predicted_depth'] = interp_preds(thisid, df_f)
+    for thisid in df_m.id_lake.unique():
+        df_m.loc[df_m.id_lake == thisid, 'predicted_depth'] = interp_preds(thisid, df_m)
+    
+    add_f = set(list(df_m)) - set(list(df_f))
+    add_m = set(list(df_f)) - set(list(df_m))
+    common = set(list(df_f) + list(df_m)) - add_f - add_m
+    add_f = list(add_f)
+    add_m = list(add_m)
+    add_f.sort()
+    add_m.sort()
+    df_m[add_m] = np.nan
+    df_f[add_f] = np.nan
+    common = ['id_lake', 'lon', 'lat', 'dist_along_track_m', 'manual', 'predicted_depth', 'surrf_2024', 'surrf_corr', 'surrf_corr_conf']
+    keys = common + add_m + add_f
+    df_m = df_m[keys]
+    df_f = df_f[keys]
+    df_all = pd.concat((df_m, df_f)).reset_index(drop=True)
+    df_all.loc[df_all.manual.isna(), 'manual'] = 0.0
+    df_all.to_csv('data/is2comp/comparison_melling_fricker.csv', index=False)
