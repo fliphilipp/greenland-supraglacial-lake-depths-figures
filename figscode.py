@@ -358,7 +358,7 @@ def plot_imagery(fn, days_buffer=5, max_cloud_prob=15, xlm=[None, None], ylm=[No
 
                      
 #####################################################################
-def plotIS2(fn, ax=None, xlm=[None, None], ylm=[None,None], cmap=cmc.lapaz_r, name='ICESat-2 data',increase_linewidth=1):
+def plotIS2(fn, ax=None, xlm=[None, None], ylm=[None,None], cmap=cmc.lapaz_r, name='ICESat-2 data',increase_linewidth=1, rasterize_scatter=False):
     lk = dictobj(read_melt_lake_h5(fn))
     df = lk.photon_data.copy()
     dfd = lk.depth_data.copy()
@@ -406,9 +406,9 @@ def plotIS2(fn, ax=None, xlm=[None, None], ylm=[None,None], cmap=cmc.lapaz_r, na
         # dfp['phot_colors'] = list(map(tuple, phot_cols))
         # dfp = dfp.sort_values(by='colvals')
         # ax.scatter(dfp.xatc, dfp.h, s=sz, c=dfp.phot_colors, edgecolors='none', alpha=1)
-        ax.scatter(dfp.xatc, dfp.h, s=sz, c='k', edgecolors='none', alpha=1)
+        ax.scatter(dfp.xatc, dfp.h, s=sz, c='k', edgecolors='none', alpha=1, rasterized=rasterize_scatter)
     else:
-        ax.scatter(df.xatc, df.h, s=1, c=df.snr, cmap=cmap)
+        ax.scatter(df.xatc, df.h, s=1, c=df.snr, cmap=cmap, rasterize=rasterized_scatter)
         
     # ax.scatter(dfd.xatc[isdepth], dfd.h_fit_bed[isdepth], s=4, color='r', alpha=dfd.conf[isdepth])
     # ax.plot(dfd.xatc, dfd.h_fit_bed, color='gray', lw=0.5)
@@ -503,7 +503,7 @@ def plotIS2(fn, ax=None, xlm=[None, None], ylm=[None,None], cmap=cmc.lapaz_r, na
 def plot_IS2_imagery(fn, axes=None, xlm=[None,None], ylm=[None,None], cmap=None, days_buffer=5, max_cloud_prob=40, 
                      gamma_value=1.3, imagery_filename=None, re_download=True, img_aspect=3/2, name='ICESat-2 data',
                      return_fig=False, imagery_shift_days=0.0, increase_linewidth=1, increase_gtwidth=1, buffer_factor=1.2,
-                     stretch_color=True):
+                     stretch_color=True, rasterize_scatter=False):
 
     if not axes:
         fig = plt.figure(figsize=[12,6], dpi=80)
@@ -513,7 +513,7 @@ def plot_IS2_imagery(fn, axes=None, xlm=[None,None], ylm=[None,None], cmap=None,
         axp = axes
         
     ax = axp[1]
-    plotIS2(fn=fn, ax=ax, xlm=xlm, ylm=ylm, cmap=cmap, name=name, increase_linewidth=increase_linewidth)
+    plotIS2(fn=fn, ax=ax, xlm=xlm, ylm=ylm, cmap=cmap, name=name, increase_linewidth=increase_linewidth, rasterize_scatter=rasterize_scatter)
     
     ax = axp[0]
     img, center_lon, center_lat = plot_imagery(fn=fn, days_buffer=days_buffer, max_cloud_prob=max_cloud_prob, xlm=xlm, ylm=ylm, 
@@ -688,7 +688,7 @@ def getstats_comparison(dfsel, stat, verb=False):
     rmse = np.sqrt(np.mean(diffs**2))
     sel = (~np.isnan(dfsel[stat])) & (~np.isnan(dfsel.manual))
     correl = pearsonr(dfsel.manual[sel], dfsel.loc[sel, stat]).statistic
-    percent = int(np.round((dfsel.loc[sel, stat].sum() / dfsel.manual[sel].sum() - 1) * 100))
+    percent = np.round((dfsel.loc[sel, stat].sum() / dfsel.manual[sel].sum() - 1) * 100, 1)
     if verb:
         print('- mean diff:', bias)
         print('- std diff:', std)
@@ -697,6 +697,15 @@ def getstats_comparison(dfsel, stat, verb=False):
         print('- correl:', correl)
         
     return pd.DataFrame({'bias': bias, 'std': std, 'mae': mae, 'rmse': rmse, 'R': correl, 'percent': percent}, index=[stat])
+
+
+#####################################################################
+def get_stats_string_latex(statsdf, estimate):
+    stats = statsdf.loc[estimate]
+    thissign = '+' if stats.percent > 0 else '-'
+    vals = (stats.mae, stats.R, stats.bias, thissign, np.abs(stats.percent))
+    add_stats = 'MAE: $%.2f\\mathrm{\\,m}$, $R^2$: $%.2f$, bias: $%.2f\\mathrm{\\,m}$ ($%s%.0f\\,\\%%$)' % vals
+    return add_stats
 
 
 #####################################################################
@@ -737,3 +746,129 @@ def compile_IS2_comparison_data():
     df_all = pd.concat((df_m, df_f)).reset_index(drop=True)
     df_all.loc[df_all.manual.isna(), 'manual'] = 0.0
     df_all.to_csv('data/is2comp/comparison_melling_fricker.csv', index=False)
+
+    
+#####################################################################
+def get_xylims_aspect(ax, img, fig):
+    axbbx = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    axis_aspect = axbbx.height / axbbx.width
+    img_wid = img.bounds.right - img.bounds.left
+    img_centerx = (img.bounds.right + img.bounds.left) / 2
+    img_centery = (img.bounds.top + img.bounds.bottom) / 2
+    img_hgt = img.bounds.top - img.bounds.bottom
+    img_aspect = img_hgt / img_wid
+    
+    if axis_aspect > img_aspect:
+        yl = (img.bounds.bottom, img.bounds.top)
+        xl = (img_centerx - img_hgt/axis_aspect/2, img_centerx + img_hgt/axis_aspect/2)
+    else:
+        xl = (img.bounds.left, img.bounds.right)
+        yl = (img_centery - img_wid*axis_aspect/2, img_centery + img_wid*axis_aspect/2)
+    return xl, yl
+
+
+#####################################################################
+def get_rotated_ground_track_image(lakeid, df_data, axis_aspect=0.2, buffer_image=0.2, scale=5, gamma_value=1.0, 
+                                   output_file='auto', plot=False):
+    if output_file == 'auto': 
+        output_file = '%s.tiff' % lakeid
+    
+    img_path = 'projects/ee-philipparndt/assets/%s_ensemble_depth_estimates' % lakeid
+    image = ee.Image(img_path)
+    this_crs = image.select('b2').projection().crs().getInfo()
+    
+    thisdf = df_data[df_data.id_lake==lakeid].copy().sort_values(by='dist_along_track_m').reset_index(drop=True)
+    gdf = gpd.GeoDataFrame(thisdf, geometry=gpd.points_from_xy(thisdf.lon, thisdf.lat), crs="EPSG:4326")
+    gdf = gdf.to_crs(this_crs)
+    gdf[['x', 'y']] = gdf.geometry.get_coordinates()
+    xoff = np.nanmin(thisdf['dist_along_track_m'])
+    gdf.dist_along_track_m -= xoff
+    gdf['xatc'] = gdf.dist_along_track_m / 1000
+    
+    lon0, lat0 = gdf.lon.iloc[0], gdf.lat.iloc[0]
+    lon1, lat1 = gdf.lon.iloc[-1], gdf.lat.iloc[-1]
+    loncenter = (lon0 + lon1) / 2
+    latcenter = (lat0 + lat1) / 2
+
+    crs_local = pyproj.CRS("+proj=stere +lat_0={0} +lon_0={1} +datum=WGS84 +units=m".format(latcenter, loncenter))
+    coordsloc = gdf.to_crs(crs_local).get_coordinates()
+    dy = coordsloc.y.iloc[-1] - coordsloc.y.iloc[0]
+    dx = coordsloc.x.iloc[-1] - coordsloc.x.iloc[0]
+    angle_deg = math.degrees(math.atan2(dy, dx))
+    
+    wkt_crs = '''
+    PROJCS["Hotine_Oblique_Mercator_Azimuth_Center",
+    GEOGCS["GCS_WGS_1984",
+    DATUM["D_unknown",
+    SPHEROID["WGS84",6378137,298.257223563]],
+    PRIMEM["Greenwich",0],
+    UNIT["Degree",0.017453292519943295]],
+    PROJECTION["Hotine_Oblique_Mercator_Azimuth_Center"],
+    PARAMETER["latitude_of_center",%s],
+    PARAMETER["longitude_of_center",%s],
+    PARAMETER["rectified_grid_angle",%s],
+    PARAMETER["scale_factor",1],
+    PARAMETER["false_easting",0],
+    PARAMETER["false_northing",0],
+    UNIT["km",1000.0], 
+    AUTHORITY["EPSG","8011112"]]''' % (lat0, lon0, angle_deg)
+
+    # get the region of interest from ground track and aspect ratio
+    buffer_img_aoi = (gdf.dist_along_track_m.max()-gdf.dist_along_track_m.min()) * axis_aspect / 2 * (1+buffer_image)
+    region = ee.Geometry.LineString([[lon0, lat0], [lon1, lat1]]).buffer(buffer_img_aoi)
+    
+    # stretch the color values 
+    def color_stretch(image):
+        percentiles = image.select(['b4', 'b3', 'b2']).reduceRegion(**{
+        # percentiles = image.select(['b3']).reduceRegion(**{
+            'reducer': ee.Reducer.percentile(**{'percentiles': [1, 99], 'outputNames': ['lower', 'upper']}),
+            'geometry': region,
+            'scale': 10,
+            'maxPixels': 1e9,
+            'bestEffort': True
+        })
+        lower = percentiles.select(['.*_lower']).values().reduce(ee.Reducer.min())
+        upper = percentiles.select(['.*_upper']).values().reduce(ee.Reducer.max())
+        return image.select(['b4', 'b3', 'b2']).unitScale(lower, upper).clamp(0,1).resample('bilinear').reproject(**{'crs': wkt_crs,'scale': scale})
+
+    # stretch color, apply gamma correction, and convert to 8-bit RGB
+    rgb_gamma = color_stretch(image).pow(1/gamma_value)
+    rgb8bit = rgb_gamma.clamp(0,1).multiply(255).uint8()
+    
+    # get the download URL and download the selected image
+    success = False
+    tries = 0
+    while (success == False) & (tries <= 10):
+        try:
+            # Get the download URL
+            url = rgb8bit.getDownloadURL({
+                'scale': scale,
+                'crs': wkt_crs,
+                'region': region,
+                'format': 'GEO_TIFF',
+                'filePerBand': False
+            })
+                
+            # Download the image
+            response = requests.get(url)
+            with open(output_file, 'wb') as f:
+                f.write(response.content)
+            if os.path.isfile(output_file):
+                success = True
+            tries += 1
+        except:
+            print('-> download unsuccessful, increasing scale to %.1f...' % scale)
+            traceback.print_exc()
+            scale *= 2
+            success = False
+            tries += 1
+
+    if plot:
+        fig,ax = plt.subplots(figsize=[8,2.5])
+        with rio.open(output_file) as src:
+            rioplot.show(src, ax=ax)
+        ax.axhline(0, color='k')
+        ax.set_title(lakeid)
+        fig.tight_layout()
+        plt.close(fig)
+        display(fig)
