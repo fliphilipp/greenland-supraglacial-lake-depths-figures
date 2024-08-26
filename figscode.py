@@ -35,6 +35,11 @@ from matplotlib.legend_handler import HandlerTuple
 import matplotlib.patheffects as path_effects
 from collections import defaultdict
 from matplotlib.lines import Line2D
+from matplotlib.transforms import TransformedBbox, Bbox
+from matplotlib.image import BboxImage
+from matplotlib.legend_handler import HandlerBase
+import PIL
+import urllib
 
 import sys
 # sys.path.append('../utils/')
@@ -704,7 +709,7 @@ def get_stats_string_latex(statsdf, estimate):
     stats = statsdf.loc[estimate]
     thissign = '+' if stats.percent > 0 else '-'
     vals = (stats.mae, stats.R, stats.bias, thissign, np.abs(stats.percent))
-    add_stats = 'MAE: $%.2f\\mathrm{\\,m}$, $R^2$: $%.2f$, bias: $%.2f\\mathrm{\\,m}$ ($%s%.0f\\,\\%%$)' % vals
+    add_stats = 'MAE: $%.2f\\mathrm{\\,m}$, $r$: $%.2f$, bias: $%.2f\\mathrm{\\,m}$ ($%s%.0f\\,\\%%$)' % vals
     return add_stats
 
 
@@ -872,3 +877,47 @@ def get_rotated_ground_track_image(lakeid, df_data, axis_aspect=0.2, buffer_imag
         fig.tight_layout()
         plt.close(fig)
         display(fig)
+
+
+#####################################################################
+class ImageHandler(HandlerBase):
+    def create_artists(self, legend, orig_handle, xdescent, ydescent, width, height, fontsize, trans):
+        sx, sy = self.image_stretch 
+        bb = Bbox.from_bounds(xdescent - sx/2, ydescent - sy/2, width + sx, height + sy)
+        tbb = TransformedBbox(bb, trans)
+        image = BboxImage(tbb)
+        image.set_data(self.image_data)
+        self.update_prop(image, orig_handle, legend)
+        return [image]
+
+    def set_image(self, image_path, image_stretch=(0, 0)):
+        if not os.path.exists(image_path):
+            url = 'https://storage.googleapis.com/replit/images/1608749573246_3ecaeb5cdbf14cd5f1ad8c48673dd7ce.png'
+            self.image_data = np.array(PIL.Image.open(urllib.request.urlopen(url)))
+        else:
+            self.image_data = plt.imread(image_path)
+        self.image_stretch = image_stretch
+
+
+#####################################################################
+def make_artist_image(filename, cmap, nx=300, ny=100, lw=20):
+    xart = np.tile(np.linspace(0,1,nx), (ny, 1))
+    fig, ax = plt.subplots(figsize=[2,1])
+    ax.axis('off')
+    ax.set_facecolor('none')
+    ax.imshow(xart, cmap=cmap)
+    ax.plot([0,nx], [0,0], lw=lw, color='k')
+    ax.plot([0,nx], [ny,ny], lw=lw, color='k')
+    ax.set_ylim((0,ny))
+    ax.set_xlim((0,nx))
+    fig.tight_layout(pad=0)
+    fig.savefig(filename, dpi=100, bbox_inches='tight', pad_inches=0.0, transparent=True)
+    plt.close(fig)
+
+#####################################################################
+def brighten_hex_color(hex_color, alpha):
+    rgb_color = matplotlib.colors.hex2color(hex_color)
+    white = np.array([1, 1, 1])
+    blended_color = (1 - alpha) * white + alpha * np.array(rgb_color)
+    brightened_hex = matplotlib.colors.to_hex(blended_color)
+    return brightened_hex
