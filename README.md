@@ -8,7 +8,7 @@ Map and examples of icesat-2 depth segments from FLUID/SuRRF:
 ---
 
 Distribution of the data (spatial, temporal, elevation, etc):
-![figure tbd](figures/fig01_tbd.jpg)
+![figure tbd](figures/fig02_icesat2-data-stats.jpg)
 
 ---
 
