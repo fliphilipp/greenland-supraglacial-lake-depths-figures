@@ -28,4 +28,31 @@ Comparison with the RTE method based on manually annotated ICESat-2 data:
 
 # Supplementary
 
-add figures there
+Sentinel-2 imagery showing the flooding of sonar validation lake 610a around the time of in-situ data acquisition. More imagery plots in the same style are included in [figures/sup/](figures/sup/) for the other validation/comparison lakes shown in Figs. 3 and 4. 
+![](figures/sup/sonar_imagery_validation_Sonar_2022-07-04_lake610a.jpg)
+
+Sentinel-2 imagery showing the rapid drainage of "Greenland lake 3" ICESat-2 comparison lake segment from Melling et al. (2024) around the time of the ICESat-2 overpass.
+![](figures/sup/is2comp_lake_greenland_melling_3_tci_imgs.jpg)
+
+ICESat-2 lake segment properties across the full dataset after fusion with Sentinel-2 data. 
+![](figures/sup/lake_segment_properties.jpg)
+
+ICESat-2 lake segment properties across the (high-quality) filtered dataset after fusion with Sentinel-2 data. Note the significantly improved NDWI match between ICESat-2 and Sentinel-2. 
+![](figures/sup/lake_segment_properties_paperselect.jpg)
+
+Feature distributions across the training dataset used to train the random forest model.
+![](figures/sup/feature_distributions_paperselect.jpg)
+
+10-fold cross validation statistics for the random forest model.
+![](figures/sup/cross_validation_statistics_RF.jpg)
+
+Number of ICESat-2 lake segments by individual IMBIE draininge (sub-) basins. This does not include basins with a total of 5 ICESat-2 lake segments or less. 
+![](figures/sup/sub_basin_distribution.jpg)
+
+ICESat-2 lake segments included in the IMBIE drainage basins and segments that were added by including the GIMP ice mask. Note that the vast majority of lakes that are added in the GIMP ice mask are on floating ice tongues (the IMBIE basins include grounded ice only). A handful of other lakes are added where the IMBIE and GIMP ice mask do not agree, and where the GIMP ice mask merges nearby ice caps into the main Greenland ice sheet.
+![](figures/others/lakes_imbie_basins_vs_gimp_icemask.jpg)
+
+ICESat-2 Reference Ground Track (RGT) coverage over the Greenland Ice Sheet. 
+![](figures/others/greenland_icesat2_rgt_coverage.jpg)
+
+
