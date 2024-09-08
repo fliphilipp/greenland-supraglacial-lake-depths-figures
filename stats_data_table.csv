@@ -1,0 +1,14 @@
+,category,region / time span,percent depths,mean of top $10\%$ depths (m),mean elevation (m),mean day
+0,,total,$0.034$,$12.1$,$981$,Jul 22
+1,basin,CE,$0.017$,$12.0$,$1350$,Jul 21
+2,basin,CW,$0.089$,$12.6$,$1164$,Jul 17
+3,basin,NE,$0.038$,$11.3$,$782$,Jul 27
+4,basin,NO,$0.023$,$10.9$,$678$,Jul 23
+5,basin,NW,$0.033$,$15.9$,$879$,Jul 29
+6,basin,SE,$0.002$,$9.6$,$1095$,Jul 23
+7,basin,SW,$0.053$,$9.3$,$1393$,Jul 15
+8,melt season,2019,$0.050$,$13.8$,$1067$,Jul 18
+9,melt season,2020,$0.030$,$12.3$,$944$,Jul 18
+10,melt season,2021,$0.034$,$10.9$,$991$,Jul 26
+11,melt season,2022,$0.028$,$11.7$,$890$,Jul 28
+12,melt season,2023,$0.031$,$11.3$,$983$,Jul 24
