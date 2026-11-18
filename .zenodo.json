@@ -2,15 +2,31 @@
   "upload_type": "software",
   "title": "Figure code and figures for: Five years of ICESat-2 supraglacial lake depths improve Greenland meltwater volume estimates",
   "creators": [
-    {"name": "Arndt, Philipp S.", "affiliation": "Scripps Institution of Oceanography, University of California San Diego", "orcid": "0000-0002-4759-5166"},
-    {"name": "Fricker, Helen A.", "affiliation": "Scripps Institution of Oceanography, University of California San Diego", "orcid": "0000-0002-0921-1432"}
+    {
+      "name": "Arndt, Philipp S.",
+      "affiliation": "Scripps Institution of Oceanography, University of California San Diego; Global Fishing Watch",
+      "orcid": "0000-0002-4759-5166"
+    },
+    {
+      "name": "Fricker, Helen A.",
+      "affiliation": "Scripps Institution of Oceanography, University of California San Diego",
+      "orcid": "0000-0002-0921-1432"
+    }
   ],
-  "description": "<p>Notebooks, plotting code and input data that produce every figure in the accompanying paper, together with the rendered figures themselves.</p><p>One notebook per figure (<code>fig02</code>&ndash;<code>fig06</code>, <code>figS01-S03</code>) over a shared plotting module (<code>figscode.py</code>), plus the figure inputs that are not available elsewhere: the merged IMBIE drainage basins extended with adjacent floating ice tongues, elevation contours derived from ArcticDEM, ICESat-2 reference ground tracks, the per-segment HDF5 files used as examples, the sonar validation data, and the Sentinel-2 chips behind the methods explainer.</p><p>Third-party inputs are not redistributed here and are cited in the paper instead: ArcticDEM mosaics (PGC), the original IMBIE drainage basins, the GIMP ice mask (NSIDC), ICESat-2 ATL03 (NSIDC), Sentinel-2 (Copernicus), and the in situ sonar depths (PANGAEA).</p>",
+  "description": "<p><strong>Related publication.</strong> Arndt PS and Fricker HA, &ldquo;Five Years of ICESat-2 Supraglacial Lake Depths Improve Greenland Meltwater Volume Estimates&rdquo;, submitted to <em>Annals of Glaciology</em>, 2026. This record will be updated with the full citation and DOI once the paper is available.</p><p>Notebooks, plotting code and input data that produce every figure in the accompanying paper, together with the rendered figures themselves.</p><p>One notebook per figure (<code>fig02</code>&ndash;<code>fig06</code>, <code>figS01-S03</code>) over a shared plotting module (<code>figscode.py</code>), plus the figure inputs that are not available elsewhere: the merged IMBIE drainage basins extended with adjacent floating ice tongues, elevation contours derived from ArcticDEM, ICESat-2 reference ground tracks, the per-segment HDF5 files used as examples, the sonar validation data, and the Sentinel-2 chips behind the methods explainer.</p><p>Third-party inputs are not redistributed here and are cited in the paper instead: ArcticDEM mosaics (PGC), the original IMBIE drainage basins, the GIMP ice mask (NSIDC), ICESat-2 ATL03 (NSIDC), Sentinel-2 (Copernicus), and the in situ sonar depths (PANGAEA).</p>",
   "access_right": "open",
   "license": "MIT",
   "language": "eng",
   "keywords": [
-    "ICESat-2", "supraglacial lakes", "Greenland Ice Sheet", "lake depth", "Sentinel-2",
-    "figures", "reproducibility", "glaciology", "remote sensing"
-  ]
+    "ICESat-2",
+    "supraglacial lakes",
+    "Greenland Ice Sheet",
+    "lake depth",
+    "Sentinel-2",
+    "figures",
+    "reproducibility",
+    "glaciology",
+    "remote sensing"
+  ],
+  "version": "1.0.0"
 }
