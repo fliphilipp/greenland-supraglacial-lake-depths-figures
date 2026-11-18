@@ -1,0 +1,6 @@
+{
+ "n_training_rows": 411975,
+ "n_training_lakes": 2241,
+ "lake_id": "lake_094135_GrIS_2021_simplified_GRE_2200_NE_ATL03_20210720053125_04061205_006_01_gt3r_0045",
+ "source": "zenodo_build/greenland_training/training_features.parquet"
+}

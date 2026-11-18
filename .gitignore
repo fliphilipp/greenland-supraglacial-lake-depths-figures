@@ -6,3 +6,16 @@ data/is2comp/imagery/*collection_imagery_full_*.tiff
 data/is2comp/plots/individual_imgs/
 data/arcticDEM/
 
+
+# macOS metadata
+.DS_Store
+
+# partial/interrupted raster transfers (GDAL/rsync temp names)
+data/is2comp/imagery/.lake_*.tiff.*
+
+# Figure 2 Sentinel-2 exports: fig02_methods-explainer.ipynb reads only the _10m_00 scene.
+# The other 12 exports (10 full-scene, 2 alternate dates) are ~201 MB and unreferenced by
+# any notebook or script. Regenerate with paper_scripts/fetch_fig2_chip.py if needed.
+data/fig2/lake_094135_s2_full_*
+data/fig2/lake_094135_s2_10m_01*
+data/fig2/lake_094135_s2_10m_02*

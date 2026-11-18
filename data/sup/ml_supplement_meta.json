@@ -1,0 +1,269 @@
+{
+  "ndwi_threshold": 0.23,
+  "band_ratio_definition": "X = ln(B2 / B3); D = aX^2 + bX + c, clipped at 0, and set to 0 where NDWI <= threshold",
+  "band_ratio_coefficients_all_samples": [
+    -1.363180800272829,
+    9.254476121237621,
+    0.007184122708430495
+  ],
+  "band_ratio_coefficients_by_fold": [
+    [
+      -1.3733197488035358,
+      9.32413621571512,
+      -0.030790347861714477
+    ],
+    [
+      -1.3539754611048784,
+      9.19640049118852,
+      0.009443435102597398
+    ],
+    [
+      -1.365279937563055,
+      9.29657289800923,
+      0.005029376386826948
+    ],
+    [
+      -1.3579870920892028,
+      9.2280886393785,
+      0.0064692403096050085
+    ],
+    [
+      -1.363299401168841,
+      9.280004915679255,
+      0.014755494152280958
+    ],
+    [
+      -1.362842221653879,
+      9.274163953635865,
+      0.011244608454797148
+    ],
+    [
+      -1.3963001768719783,
+      9.213263918956411,
+      0.02885980171174349
+    ],
+    [
+      -1.3590161643129175,
+      9.19626150295945,
+      0.030419419232943497
+    ],
+    [
+      -1.3533737428229342,
+      9.244036834676116,
+      0.01423689084262691
+    ],
+    [
+      -1.358836198240929,
+      9.318878337843147,
+      -0.025967620788166685
+    ]
+  ],
+  "features_62": [
+    "B1_log",
+    "B2_log",
+    "B3_log",
+    "B4_log",
+    "B5_log",
+    "B6_log",
+    "B7_log",
+    "B8_log",
+    "B8A_log",
+    "B9_log",
+    "B11_log",
+    "B12_log",
+    "AOT_log",
+    "WVP_log",
+    "SCL",
+    "MSK_CLDPRB",
+    "MSK_SNWPRB",
+    "cloudScore_log",
+    "ndwi",
+    "SZA_cos",
+    "VZA_B1_cos",
+    "VZA_B2_cos",
+    "VZA_B3_cos",
+    "VZA_B4_cos",
+    "VZA_B5_cos",
+    "VZA_B6_cos",
+    "VZA_B7_cos",
+    "VZA_B8_cos",
+    "VZA_B8A_cos",
+    "VZA_B9_cos",
+    "VZA_B11_cos",
+    "VZA_B12_cos",
+    "RAA_B1_cos",
+    "PhA_B1",
+    "RAA_B2_cos",
+    "PhA_B2",
+    "RAA_B3_cos",
+    "PhA_B3",
+    "RAA_B4_cos",
+    "PhA_B4",
+    "RAA_B5_cos",
+    "PhA_B5",
+    "RAA_B6_cos",
+    "PhA_B6",
+    "RAA_B7_cos",
+    "PhA_B7",
+    "RAA_B8_cos",
+    "PhA_B8",
+    "RAA_B8A_cos",
+    "PhA_B8A",
+    "RAA_B9_cos",
+    "PhA_B9",
+    "RAA_B11_cos",
+    "PhA_B11",
+    "RAA_B12_cos",
+    "PhA_B12",
+    "ratio_logB4_logB2",
+    "ratio_logB4_logB3",
+    "ratio_logB3_logB2",
+    "diff_logB2_logB4",
+    "diff_logB3_logB4",
+    "diff_logB2_logB3"
+  ],
+  "features_16": [
+    "B3_log",
+    "ratio_logB3_logB2",
+    "diff_logB3_logB4",
+    "diff_logB2_logB3",
+    "ratio_logB4_logB2",
+    "B2_log",
+    "ratio_logB4_logB3",
+    "B4_log",
+    "ndwi",
+    "B1_log",
+    "diff_logB2_logB4",
+    "B8_log",
+    "B5_log",
+    "B6_log",
+    "AOT_log",
+    "B7_log"
+  ],
+  "features_19_rfe": [
+    "B3_log",
+    "ratio_logB3_logB2",
+    "diff_logB3_logB4",
+    "diff_logB2_logB3",
+    "ratio_logB4_logB2",
+    "B2_log",
+    "ratio_logB4_logB3",
+    "B4_log",
+    "ndwi",
+    "B1_log",
+    "diff_logB2_logB4",
+    "B8_log",
+    "B5_log",
+    "PhA_B3",
+    "B6_log",
+    "AOT_log",
+    "B7_log",
+    "VZA_B3_cos",
+    "SZA_cos"
+  ],
+  "hyperparameters": {
+    "n_estimators": 1000,
+    "criterion": "squared_error",
+    "max_features": 0.4,
+    "max_samples": 0.05,
+    "min_samples_leaf": 1
+  },
+  "n_samples": 411975,
+  "n_segments": 2241,
+  "folds": 10,
+  "seed": 42,
+  "statistics": {
+    "random_forest_62": {
+      "all_samples": {
+        "n": 411975,
+        "MAE": 0.34243378688842324,
+        "RMSE": 0.8289094187200716,
+        "bias": -0.005821683985563782,
+        "r": 0.9629997239351928
+      },
+      "water_only": {
+        "n": 237136,
+        "MAE": 0.5431167065047227,
+        "RMSE": 1.058533413419812,
+        "bias": -0.06190550696480882,
+        "r": 0.9457243365013868
+      },
+      "water_ndwi_gated": {
+        "n": 231852,
+        "MAE": 0.5218947681223725,
+        "RMSE": 0.9678138862850455,
+        "bias": -0.034830820300417314,
+        "r": 0.9545423435039392
+      }
+    },
+    "random_forest_16": {
+      "all_samples": {
+        "n": 411975,
+        "MAE": 0.35397337853840544,
+        "RMSE": 0.8428481918928529,
+        "bias": -0.00895345556389632,
+        "r": 0.9615895650088883
+      },
+      "water_only": {
+        "n": 237136,
+        "MAE": 0.5658318151006739,
+        "RMSE": 1.075495796083083,
+        "bias": -0.06467887277166846,
+        "r": 0.9437680844506054
+      },
+      "water_ndwi_gated": {
+        "n": 231852,
+        "MAE": 0.544861777108989,
+        "RMSE": 0.9866845594976524,
+        "bias": -0.037659071053350396,
+        "r": 0.9524733311976846
+      }
+    },
+    "band_ratio_oof": {
+      "all_samples": {
+        "n": 411975,
+        "MAE": 0.9010453426808764,
+        "RMSE": 2.079010413249929,
+        "bias": -0.16141305673178027,
+        "r": 0.7381648391677664
+      },
+      "water_only": {
+        "n": 237136,
+        "MAE": 1.5580045561313085,
+        "RMSE": 2.7376470813087805,
+        "bias": -0.2877982705083804,
+        "r": 0.5599688419946675
+      },
+      "water_ndwi_gated": {
+        "n": 231852,
+        "MAE": 1.5417704060445152,
+        "RMSE": 2.695453289740493,
+        "bias": -0.2426156101079753,
+        "r": 0.5684616549704393
+      }
+    },
+    "band_ratio_insample": {
+      "all_samples": {
+        "n": 411975,
+        "MAE": 0.9004479646682739,
+        "RMSE": 2.0778355598449707,
+        "bias": -0.1613309532403946,
+        "r": 0.7384854724208252
+      },
+      "water_only": {
+        "n": 237136,
+        "MAE": 1.5569572448730469,
+        "RMSE": 2.7360899448394775,
+        "bias": -0.28766509890556335,
+        "r": 0.5604799971918639
+      },
+      "water_ndwi_gated": {
+        "n": 231852,
+        "MAE": 1.5406992435455322,
+        "RMSE": 2.693835973739624,
+        "bias": -0.2424793243408203,
+        "r": 0.5690041401599433
+      }
+    }
+  }
+}
